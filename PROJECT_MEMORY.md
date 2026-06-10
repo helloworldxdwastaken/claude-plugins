@@ -13,7 +13,7 @@
 
 ## Build / Run / Deploy
 - No build step — declarative: JSON manifests + a bash hook + a markdown skill.
-- Release: bump `version` in BOTH `marketplace.json` and `plugins/project-memory/.claude-plugin/plugin.json`, commit, push to `origin` (already public via gh).
+- **Standing rule (per user, 2026-06-10):** after ANY plugin change, bump `version` in BOTH `marketplace.json` and `plugins/project-memory/.claude-plugin/plugin.json`, then commit and **push to `origin`** — don't wait to be asked. (Docs/PROJECT_MEMORY-only edits: still push, but no version bump.)
 - Install per machine — **in the Claude Code chat input, NOT a terminal**: `/plugin marketplace add helloworldxdwastaken/claude-plugins` → `/plugin install project-memory@tokyo` → `/reload-plugins`. Updates: `/plugin marketplace update tokyo`, or the auto-update toggle in the `/plugin` UI.
 
 ## Gotchas / lessons learned
