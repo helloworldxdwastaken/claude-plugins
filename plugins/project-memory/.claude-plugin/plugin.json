@@ -1,7 +1,7 @@
 {
   "name": "project-memory",
   "description": "Keep durable project knowledge in the repo (PROJECT_MEMORY.md), auto-loaded every session and captured via /project-memory:memo — so you never re-explain a project's history.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": { "name": "helloworldxdwastaken", "email": "info.dronx@gmail.com" },
   "homepage": "https://github.com/helloworldxdwastaken/claude-plugins",
   "license": "MIT",

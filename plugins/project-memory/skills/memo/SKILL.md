@@ -1,6 +1,6 @@
 ---
 name: memo
-description: Append a durable project-specific fact (architecture, build/run/deploy steps, gotchas, decisions, conventions) to THIS repo's PROJECT_MEMORY.md. Use when the user says "/memo ...", "remember this for the project", "add to project memory", or right after learning something operational about the current project that future sessions will need. Creates PROJECT_MEMORY.md from a template if it doesn't exist. Do NOT use for cross-project facts about the user (those belong in personal memory).
+description: Append a durable project-specific fact (architecture, build/run/deploy steps, gotchas, decisions, conventions) to THIS repo's PROJECT_MEMORY.md. Use PROACTIVELY — the moment you learn something durable about the current project that a future session would need, capture it immediately; don't wait to be asked or batch it to the end. Also use when the user says "/memo ...", "remember this for the project", or "add to project memory". Creates PROJECT_MEMORY.md from a template if it doesn't exist. Do NOT use for cross-project facts about the user (those belong in personal memory).
 ---
 
 # /project-memory:memo — capture a durable project fact

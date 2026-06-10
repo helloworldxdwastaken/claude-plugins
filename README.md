@@ -1,4 +1,4 @@
-# wasta — Claude Code plugins
+# tokyo — Claude Code plugins
 
 A small Claude Code [plugin marketplace](https://code.claude.com/docs/en/plugins.md).
 
@@ -13,20 +13,22 @@ on **any** machine. Install once.
 - **`/project-memory:memo "<fact>"`** — appends a durable fact (architecture, build/run/deploy steps, gotchas,
   decisions, conventions) to this repo's `PROJECT_MEMORY.md`, creating the file from a template if it doesn't
   exist. De-duplicates, uses absolute dates, never writes to personal/global memory, never stores secrets.
-- **SessionStart hook** — at the start of each session, if the repo has a `PROJECT_MEMORY.md`, its contents are
-  injected into context automatically (so the project's history is always present). No `PROJECT_MEMORY.md`?
+- **SessionStart hook** — at the start of each session, if the repo has a `PROJECT_MEMORY.md`, its contents
+  (plus a directive to capture durable facts as you go) are injected into context automatically. It also
+  **re-injects after a compaction or `/clear`**, so when a long session is auto-compacted the memory and the
+  capture directive aren't lost — facts keep getting recorded even late in the session. No `PROJECT_MEMORY.md`?
   You get a one-line nudge to create one (silence it with `PROJECT_MEMORY_NUDGE=0`).
 
 ### Install (per machine)
 
 ```
 /plugin marketplace add helloworldxdwastaken/claude-plugins
-/plugin install project-memory@wasta
+/plugin install project-memory@tokyo
 /reload-plugins
 ```
 
-To get updates automatically: in the `/plugin` UI → **Marketplaces** → `wasta` → **Enable auto-update**.
-(Or pull the latest manually with `/plugin marketplace update wasta`.)
+To get updates automatically: in the `/plugin` UI → **Marketplaces** → `tokyo` → **Enable auto-update**.
+(Or pull the latest manually with `/plugin marketplace update tokyo`.)
 
 ### Use
 
@@ -38,7 +40,9 @@ To get updates automatically: in the `/plugin` UI → **Marketplaces** → `wast
 
 - `PROJECT_MEMORY.md` is committed to your repo — **never put secrets/keys in it**.
 - The hook inlines `PROJECT_MEMORY.md` only when it's ≤ 8 KB; larger files are pointed to and read on demand.
-- The hook fires on the `startup` matcher only (not on resume/compact), to avoid mid-session repetition.
+- The hook fires on `startup`, `compact`, and `clear` — re-injecting after a compaction/`/clear` (which remove
+  the earlier injection from context) but **not** on `resume` (where context is retained), so it restores lost
+  memory without redundant mid-session repetition.
 
 ## Layout
 
@@ -48,7 +52,7 @@ plugins/project-memory/
 ├── .claude-plugin/plugin.json
 ├── skills/memo/SKILL.md               # /project-memory:memo
 └── hooks/
-    ├── hooks.json                     # SessionStart → session-start.sh
+    ├── hooks.json                     # SessionStart (startup|compact|clear) → session-start.sh
     └── session-start.sh
 ```
 
