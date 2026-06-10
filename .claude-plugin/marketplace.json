@@ -1,0 +1,16 @@
+{
+  "name": "wasta",
+  "owner": {
+    "name": "helloworldxdwastaken",
+    "email": "info.dronx@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "project-memory",
+      "source": "./plugins/project-memory",
+      "description": "Per-repo project memory: auto-injects PROJECT_MEMORY.md into context each session and captures durable facts with /project-memory:memo, so you never re-explain a project.",
+      "version": "1.0.0",
+      "author": { "name": "helloworldxdwastaken" }
+    }
+  ]
+}
