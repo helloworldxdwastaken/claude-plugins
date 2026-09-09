@@ -2,6 +2,8 @@
 
 A small Claude Code [plugin marketplace](https://code.claude.com/docs/en/plugins.md).
 
+> **Using [opencode](https://opencode.ai)?** See [`opencode/`](opencode/) for a port of `project-memory` (global `memo` skill + `AGENTS.md` directive + optional compaction re-injection plugin).
+
 ## `project-memory`
 
 Keep durable project knowledge **in the repo** (`PROJECT_MEMORY.md`), auto-loaded into every Claude Code
