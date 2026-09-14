@@ -76,9 +76,21 @@ function drawLottie() {
   const d1 = s1.getContext('2d').getImageData(0, 0, W, H).data;
   const d2 = s2.getContext('2d').getImageData(0, 0, W, H).data;
   let bad = 0, total = W * H, sum = 0;
-  for (let i = 0; i < d1.length; i += 4) {
+  const near = (d, x, y, r, g, b) => {   // pixelmatch-style AA exclusion:
+    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {  // a mismatch
+      const xx = x+dx, yy = y+dy;                     // counts only if the other image
+      if (xx<0||yy<0||xx>=W||yy>=H) continue;         // has no similar pixel within 1px
+      const j = (yy*W+xx)*4;
+      if (Math.max(Math.abs(r-d[j]), Math.abs(g-d[j+1]), Math.abs(b-d[j+2])) <= TOL) return true;
+    }
+    return false;
+  };
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = (y*W+x)*4;
     const dd = Math.max(Math.abs(d1[i]-d2[i]), Math.abs(d1[i+1]-d2[i+1]), Math.abs(d1[i+2]-d2[i+2]));
-    if (dd > TOL) bad++; sum += dd;
+    sum += dd;
+    if (dd > TOL && !near(d2, x, y, d1[i], d1[i+1], d1[i+2]) &&
+        !near(d1, x, y, d2[i], d2[i+1], d2[i+2])) bad++;
   }
   const match = 100 * (1 - bad / total);
   document.getElementById('chip').textContent = (match >= 99 ? '\\u2713 ' : '\\u2717 ') +
