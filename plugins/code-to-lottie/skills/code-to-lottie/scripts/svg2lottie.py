@@ -292,7 +292,12 @@ def build_comp(name, parts, kf_stops, duration, easing, stagger, fps=60, pad=4):
                 vals.append((t, v))
 
         for pct, st in kf_stops:
-            t = min(round(pct / 100 * N + d0, 2), N)  # clamp delayed kfs into the loop
+            t = round(pct / 100 * N + d0, 2)
+            if t > N:
+                # loop seam: a delayed stop past the loop end snaps to its
+                # GLOBAL (undelayed) time — clamping to N + dedupe would stretch
+                # the hold into a slow full-length fade
+                t = round(pct / 100 * N, 2)
             if 'opacity' in st:
                 add(ovals, t, [st['opacity']])
             if 'scale' in st:

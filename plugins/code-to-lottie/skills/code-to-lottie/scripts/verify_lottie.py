@@ -106,10 +106,12 @@ def check_timing(comp, kf_stops, anim, fps):
         im = re.search(r'(\d+)$', L['nm'])
         idx = int(im.group(1)) if im else 0
         d0 = idx * anim['stagger'] * fps
-        o_pairs = [(min(round(pct / 100 * N + d0, 2), N), st['opacity'])
-                   for pct, st in kf_stops if 'opacity' in st]
-        s_pairs = [(min(round(pct / 100 * N + d0, 2), N), st['scale'])
-                   for pct, st in kf_stops if 'scale' in st]
+        def stop_t(pct):
+            t = round(pct / 100 * N + d0, 2)
+            return round(pct / 100 * N, 2) if t > N else t   # tail stops go global
+
+        o_pairs = [(stop_t(pct), st['opacity']) for pct, st in kf_stops if 'opacity' in st]
+        s_pairs = [(stop_t(pct), st['scale']) for pct, st in kf_stops if 'scale' in st]
         o_exp = dedupe(o_pairs)
         s_exp = dedupe(s_pairs)
         if o_exp:
