@@ -1,0 +1,9 @@
+{
+  "name": "code-to-lottie",
+  "description": "Convert tagged SVG + CSS-keyframe animations into true-vector Lottie JSON (bodymovin) and prove the export matches the source: keyframe-timing check, geometry round-trip, and a browser pixel-diff — no After Effects needed.",
+  "version": "1.0.0",
+  "author": { "name": "helloworldxdwastaken", "email": "info.dronx@gmail.com" },
+  "homepage": "https://github.com/helloworldxdwastaken/claude-plugins",
+  "license": "MIT",
+  "keywords": ["lottie", "bodymovin", "svg", "css", "animation", "export", "keyframes"]
+}

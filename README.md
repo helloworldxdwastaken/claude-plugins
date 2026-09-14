@@ -46,6 +46,34 @@ To get updates automatically: in the `/plugin` UI → **Marketplaces** → `toky
   the earlier injection from context) but **not** on `resume` (where context is retained), so it restores lost
   memory without redundant mid-session repetition.
 
+## `code-to-lottie`
+
+Convert **coded animations** (tagged SVG + CSS `@keyframes`) into **true-vector Lottie JSON**
+(bodymovin) — no After Effects — and *prove* the export matches the source before shipping.
+
+### What it does
+
+- **Pipeline skill** — tag each animated piece `class="lottie-part"` + `--i` stagger order,
+  convert with `scripts/svg2lottie.py` (parses `@keyframes` opacity/scale/translate, easing,
+  stagger; paths/rects/circles/ellipses/groups; `<text>` → real glyph outlines via fontTools).
+- **Three-stage verification** — the skill refuses to call it done without:
+  1. **timing** — keyframe times/values/easing re-parsed from the source CSS and diffed;
+  2. **geometry** — sampled curve round-trip vs the source SVG (≤ 0.05px);
+  3. **pixel diff** — self-contained `diff.html` (player + JSON inlined) rendered headless;
+     ≥ 99% pixel match passes.
+- Encodes the gotchas that silently break Lottie exports (relative tangents, anchor-relative
+  vertices, loop-seam clamping, `file://` fetch, canvas renderer sizing).
+
+### Install
+
+```
+/plugin marketplace add helloworldxdwastaken/claude-plugins
+/plugin install code-to-lottie@tokyo
+```
+
+Then: *"export this animation as a lottie"* / *"convert this svg loader to lottie"* — the skill
+triggers on the task and runs the pipeline + verification itself.
+
 ## Layout
 
 ```
@@ -56,6 +84,13 @@ plugins/project-memory/
 └── hooks/
     ├── hooks.json                     # SessionStart (startup|compact|clear) → session-start.sh
     └── session-start.sh
+plugins/code-to-lottie/
+├── .claude-plugin/plugin.json
+└── skills/code-to-lottie/
+    ├── SKILL.md                       # pipeline + verification protocol
+    └── scripts/
+        ├── svg2lottie.py              # tagged SVG + CSS keyframes → Lottie JSON
+        └── verify_lottie.py           # timing + geometry + pixel-diff verification
 ```
 
 ## License
