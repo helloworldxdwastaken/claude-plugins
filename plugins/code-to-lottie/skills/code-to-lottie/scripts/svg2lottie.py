@@ -210,7 +210,8 @@ def parse_css(css):
     for m in re.finditer(r'@keyframes\s+([\w-]+)\s*\{((?:[^{}]|\{[^}]*\})*)\}', css):
         name, body = m.group(1), m.group(2)
         stops = []
-        for sel, blk in re.findall(r'([\d.]+(?:\s*,\s*[\d.]+)*)%\s*\{([^}]*)\}', body):
+        # css selectors repeat the '%' on every stop: "10%, 92% { ... }"
+        for sel, blk in re.findall(r'([\d.]+%(?:\s*,\s*[\d.]+%)*)\s*\{([^}]*)\}', body):
             st = {}
             op = re.search(r'opacity:\s*([\d.]+)', blk)
             if op:
@@ -221,8 +222,8 @@ def parse_css(css):
             tr = re.search(r'translate\(([-\d.]+)(px)?(?:\s*,\s*([-\d.]+)(px)?)?\)', blk)
             if tr:
                 st['translate'] = (float(tr.group(1)), float(tr.group(3) or 0))
-            for pct in sel.split(','):
-                stops.append((float(pct.strip()), dict(st)))
+            for tok in sel.split(','):
+                stops.append((float(tok.strip().rstrip('%')), dict(st)))
         stops.sort(key=lambda s: s[0])
         kfs[name] = stops
     anim = {'duration': 5.0, 'easing': 'ease-out', 'stagger': 0.1}

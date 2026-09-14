@@ -124,9 +124,16 @@ def dedupe(pairs):
             out.append((t, v))
     return out
 
-def check_timing(comp, kf_stops, anim, fps):
+def check_timing(comp, kf_stops, anim, fps, raw_css=''):
     N = int(anim['duration'] * fps)
     assert comp['op'] == N and comp['fr'] == fps, 'comp duration/fps mismatch'
+    # NON-CIRCULAR GUARD: the parsed stops must cover every percentage literal
+    # in the raw @keyframes text. (A selector-parse drop like "10%, 92%" only
+    # keeping 92 is invisible to a timing check that reuses the same parser.)
+    raw_pcts = sorted({float(t) for t in re.findall(r'(\d+(?:\.\d+)?)%', raw_css)})
+    parsed_pcts = sorted({pct for pct, _ in kf_stops})
+    assert raw_pcts == parsed_pcts, ('keyframe stops parsed=%s != raw css %s'
+                                     % (parsed_pcts, raw_pcts))
     for L in comp['layers']:
         im = re.search(r'(\d+)$', L['nm'])
         idx = int(im.group(1)) if im else 0
@@ -192,7 +199,8 @@ def main():
     parts, kf_stops, anim = S.extract_parts(src_text, css)
     if kf_stops and '<style' not in src_text and not css:
         raise SystemExit('source has no keyframes — pass --css')
-    print('STAGE 1:', check_timing(comp, kf_stops, anim, a.fps))
+    print('STAGE 1:', check_timing(comp, kf_stops, anim, a.fps,
+                                   raw_css=open(a.css, encoding='utf-8').read() if a.css else src_text))
     print('STAGE 2:', check_geometry(comp, parts))
     print('PASS: lottie matches source (timing + geometry)')
 
