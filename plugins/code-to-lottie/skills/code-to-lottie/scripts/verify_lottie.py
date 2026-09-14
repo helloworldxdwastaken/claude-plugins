@@ -60,9 +60,22 @@ function drawLottie() {
 }
 (async () => {
   const [c1, c2] = await Promise.all([drawOrig(), drawLottie()]);
-  const d1 = c1.getContext('2d').getImageData(0, 0, c1.width, c1.height).data;
-  const d2 = c2.getContext('2d').getImageData(0, 0, c2.width, c2.height).data;
-  let bad = 0, total = c1.width * c1.height, sum = 0;
+  // compare at 1x: supersampled canvases downsampled once — rasterizer AA
+  // kernels converge, so edge noise can't flip the verdict (real displacement
+  // still fails hard)
+  function down(c) {
+    const s = document.createElement('canvas');
+    s.width = DATA.w; s.height = DATA.h;
+    const x = s.getContext('2d');
+    x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high';
+    x.drawImage(c, 0, 0, s.width, s.height);
+    return s;
+  }
+  const s1 = down(c1), s2 = down(c2);
+  const W = s1.width, H = s1.height;
+  const d1 = s1.getContext('2d').getImageData(0, 0, W, H).data;
+  const d2 = s2.getContext('2d').getImageData(0, 0, W, H).data;
+  let bad = 0, total = W * H, sum = 0;
   for (let i = 0; i < d1.length; i += 4) {
     const dd = Math.max(Math.abs(d1[i]-d2[i]), Math.abs(d1[i+1]-d2[i+1]), Math.abs(d1[i+2]-d2[i+2]));
     if (dd > TOL) bad++; sum += dd;
@@ -184,11 +197,11 @@ def main():
         new_tag = re.sub(r'width="[^"]*"', 'width="%g"' % (w * 3), new_tag)
         new_tag = re.sub(r'height="[^"]*"', 'height="%g"' % (h * 3), new_tag)
         src_crop = src_text.replace(stag, new_tag, 1)
-        # an <img>-rasterized svg RUNS its css animation — freeze parts at the
-        # "all in" state the paused lottie frame shows (scale-1/translate-0 hold)
-        src_crop = src_crop.replace('</svg>',
-            '<style>.lottie-part{animation:none!important;opacity:1!important;'
-            'transform:none!important}</style></svg>')
+        # an <img>-rasterized svg RUNS its css animation (parts sit at their 0%
+        # keyframe at snapshot time). The paused lottie frame shows the static
+        # "all in" state — which is exactly the svg with its animation css
+        # stripped, so compare against that (no cascade/AA surprises).
+        src_crop = re.sub(r'<style\b[^>]*>.*?</style>\s*', '', src_crop, flags=re.S)
         ljs = ''
         for cand in (a.lottie_js, os.path.join(os.path.dirname(os.path.abspath(a.json)), 'lottie.min.js'),
                      os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lottie.min.js')):
