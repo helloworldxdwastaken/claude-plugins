@@ -16,7 +16,7 @@
       "name": "code-to-lottie",
       "source": "./plugins/code-to-lottie",
       "description": "Convert tagged SVG + CSS-keyframe animations to true-vector Lottie JSON (bodymovin) with three-stage verification: keyframe-timing diff, geometry round-trip, and a >=99% browser pixel-diff against the source.",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "author": { "name": "helloworldxdwastaken" }
     }
   ]

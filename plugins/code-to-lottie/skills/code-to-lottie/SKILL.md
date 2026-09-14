@@ -26,12 +26,15 @@ wrap raster frames, never true vectors).
    in as parts.
 2. **Convert:** `python3 scripts/svg2lottie.py source.svg --out anim.json`
    (reads embedded `<style>`, or pass `--css`; `--fps`, `--pad`, `--name`).
+   The comp auto-crops to the parts' union bbox + `--pad` (default 4px), so a
+   smaller canvas than the source svg is expected, not clipping.
 3. **Verify — REQUIRED, all three stages:**
-   - `python3 scripts/verify_lottie.py source anim.json` → stage 1 timing
-     (keyframe times/values/easing vs the source CSS) + stage 2 geometry
+   - `python3 scripts/verify_lottie.py source anim.json` → **stage 1 timing**
+     (keyframe times/values/easing vs the source CSS) + **stage 2 geometry**
      (sampled curve round-trip, ≤ 0.05px). Fix the generator until PASS.
-   - `... --diff` writes a self-contained `diff.html` (needs `lottie.min.js` —
-     download from cdnjs `bodymovin/5.12.2` once per project).
+   - **stage 3 pixel diff:** `... --diff` writes a self-contained `diff.html`
+     (needs `lottie.min.js` — download from cdnjs `bodymovin/5.12.2` once per
+     project).
    - Render proof: headless chromium `--dump-dom` and read the match % in the
      page title (or open the page). **≥ 99% passes** — rasterizer
      antialiasing eats the rest. If < 99%, fix the generator, never the JSON.
