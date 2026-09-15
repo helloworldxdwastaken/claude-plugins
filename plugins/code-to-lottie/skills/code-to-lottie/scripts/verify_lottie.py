@@ -230,9 +230,19 @@ def main():
         if not ljs:
             raise SystemExit('lottie.min.js not found — download from '
                              'https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js')
+        # diff frame: middle of the final all-visible plateau (the last kf below
+        # 100% opacity across layers marks where every part is assembled again)
+        last_hidden = 0.0
+        for L in comp['layers']:
+            o = L['ks']['o']
+            if o.get('a'):
+                for k in o['k']:
+                    if k['s'][0] < 100 and k['t'] > last_hidden:
+                        last_hidden = k['t']
+        frame = max(1, min(int(last_hidden + (comp['op'] - last_hidden) / 2), comp['op'] - 1))
         page = (DIFF_TPL.replace('__LOTTIE_JS__', ljs)
                 .replace('__TITLE__', os.path.basename(a.json))
-                .replace('__FRAME__', str(int(0.8 * comp['op'])))
+                .replace('__FRAME__', str(frame))
                 .replace('__ORIG__', src_crop)
                 .replace('__DATA__', json.dumps(comp))
                 .replace('__SRC__', json.dumps(src_crop)))
