@@ -205,8 +205,16 @@ import os  # noqa: E402  (used by text_to_paths default font search)
 
 # ---------- css parsing ----------
 def parse_css(css):
-    """-> (keyframes: {name: [(pct, {opacity?, scale?, translate?})]},
-            part_anim: {duration_s, easing, stagger_s})"""
+    """-> (keyframes: {name: [(pct, {opacity?, scale?, translate?, fill?})]},
+            part_anim: {duration_s, easing, stagger_s},
+            fill_anims: {name: {duration_s, easing, delay_s, stops}})
+
+    The PRIMARY animation (opacity/scale/translate, staggered by --i) is the
+    one whose keyframes have no fill stops. A fill animation (animated `fill:`
+    color, e.g. the artifact's fg-invert white->black->white circuit) runs with
+    a FIXED delay (no stagger) on parts whose class list contains its name:
+    class="lottie-part fg-invert". Its duration must match the primary's —
+    times map onto the same comp loop."""
     kfs = {}
     for m in re.finditer(r'@keyframes\s+([\w-]+)\s*\{((?:[^{}]|\{[^}]*\})*)\}', css):
         name, body = m.group(1), m.group(2)
@@ -223,19 +231,35 @@ def parse_css(css):
             tr = re.search(r'translate\(([-\d.]+)(px)?(?:\s*,\s*([-\d.]+)(px)?)?\)', blk)
             if tr:
                 st['translate'] = (float(tr.group(1)), float(tr.group(3) or 0))
+            fl = re.search(r'fill:\s*(#[0-9a-fA-F]{3,8}|[a-z]+)', blk)
+            if fl:
+                st['fill'] = fl.group(1)
             for tok in sel.split(','):
                 stops.append((float(tok.strip().rstrip('%')), dict(st)))
         stops.sort(key=lambda s: s[0])
         kfs[name] = stops
-    anim = {'duration': 5.0, 'easing': 'ease-out', 'stagger': 0.1}
-    am = re.search(r'animation:\s*([\w-]+)\s+([\d.]+)s\s+([\w-]+)', css)
-    if am:
-        anim['duration'] = float(am.group(2))
-        anim['easing'] = am.group(3)
-    sm = re.search(r'animation-delay:\s*calc\(var\(--i,\s*0\)\s*\*\s*([\d.]+)(ms|s)\)', css)
-    if sm:
-        anim['stagger'] = float(sm.group(1)) / (1000 if sm.group(2) == 'ms' else 1)
-    return kfs, anim
+    anim = None
+    fill_anims = {}
+    for bm in re.finditer(r'([^{}]+)\{([^{}]*)\}', css):
+        body = bm.group(2)
+        am = re.search(r'animation:\s*([\w-]+)\s+([\d.]+)s\s+([\w-]+)', body)
+        if not am:
+            continue
+        name, dur, ease = am.group(1), float(am.group(2)), am.group(3)
+        entry = {'duration': dur, 'easing': ease, 'stagger': 0.0, 'delay': 0.0}
+        sm = re.search(r'animation-delay:\s*calc\(var\(--i,\s*0\)\s*\*\s*([\d.]+)(ms|s)\)', body)
+        if sm:
+            entry['stagger'] = float(sm.group(1)) / (1000 if sm.group(2) == 'ms' else 1)
+        dm = re.search(r'animation-delay:\s*([\d.]+)(ms|s)', body)
+        if dm:
+            entry['delay'] = float(dm.group(1)) / (1000 if dm.group(2) == 'ms' else 1)
+        if any('fill' in st for _, st in kfs.get(name, [])):
+            fill_anims[name] = dict(entry, stops=kfs[name])
+        elif anim is None:          # first opacity/scale rule = the primary
+            anim = {'duration': dur, 'easing': ease, 'stagger': entry['stagger']}
+    if anim is None:
+        anim = {'duration': 5.0, 'easing': 'ease-out', 'stagger': 0.1}
+    return kfs, anim, fill_anims
 
 # ---------- lottie assembly ----------
 def hexrgb(h):
@@ -342,10 +366,23 @@ def build_comp(name, parts, kf_stops, duration, easing, stagger, fps=60, pad=4):
               'p': kfs_list(pvals, easing) if pvals else {'a': 0, 'k': [round(c[0], 2), round(c[1], 2), 0]},
               'a': {'a': 0, 'k': [0, 0, 0]},
               's': kfs_list(svals, easing) if svals else {'a': 0, 'k': [100, 100, 100]}}
+        # animated fill (color circuit): stops use the fill track's own easing,
+        # fixed delay (no stagger), same tail-snap rule as the loop seam
+        fl_c = {'a': 0, 'k': hexrgb(p['fill']) + [1]}
+        ft = p.get('fill_track')
+        if ft:
+            fvals = []
+            d0f = ft.get('delay', 0.0) * fps
+            for pct, st in ft['stops']:
+                t = round(pct / 100 * N + d0f, 2)
+                if t > N:
+                    t = round(pct / 100 * N, 2)
+                add(fvals, t, hexrgb(st['fill']) + [1])
+            fl_c = kfs_list(fvals, ft.get('easing', 'ease-in-out'))
         shapes = [{'ty': 'sh', 'ks': {'a': 0, 'k': {'c': s['c'], 'v': s['v'], 'i': s['i'], 'o': s['o']}}}
                   for s in p['subs']]
         grp = {'ty': 'gr', 'nm': p['nm'], 'it': shapes + [
-            {'ty': 'fl', 'c': {'a': 0, 'k': hexrgb(p['fill']) + [1]}, 'o': {'a': 0, 'k': 100}, 'r': 1, 'nm': 'fill'},
+            {'ty': 'fl', 'c': fl_c, 'o': {'a': 0, 'k': 100}, 'r': 1, 'nm': 'fill'},
             {'ty': 'tr', 'p': {'a': 0, 'k': [0, 0]}, 'a': {'a': 0, 'k': [0, 0]},
              's': {'a': 0, 'k': [100, 100]}, 'r': {'a': 0, 'k': 0}, 'o': {'a': 0, 'k': 100},
              'sk': {'a': 0, 'k': 0}, 'sa': {'a': 0, 'k': 0}}]}
@@ -357,10 +394,12 @@ def build_comp(name, parts, kf_stops, duration, easing, stagger, fps=60, pad=4):
 
 # ---------- source extraction ----------
 def extract_parts(svg_text, css='', cls='lottie-part'):
-    """-> (parts, kf_stops, anim) from an svg string (+ optional css)."""
+    """-> (parts, kf_stops, anim, fill_anims) from an svg string (+ optional css).
+    A part whose class list contains a fill animation's name gets it as
+    p['fill_track'] (animated fill color; no stagger)."""
     if '<style' in svg_text and not css:
         css = '\n'.join(re.findall(r'<style[^>]*>(.*?)</style>', svg_text, re.S))
-    kfs, anim = parse_css(css)
+    kfs, anim, fill_anims = parse_css(css)
     # one keyframes rule drives all parts: the one referenced by the part animation rule
     am = re.search(r'animation:\s*([\w-]+)', css or '')
     kf_name = am.group(1) if am and am.group(1) in kfs else (next(iter(kfs)) if kfs else None)
@@ -389,8 +428,12 @@ def extract_parts(svg_text, css='', cls='lottie-part'):
                 subs += beziers(d, gmat)
             fill = at.get('fill', fill)
         if subs:
-            parts.append({'nm': 'part %s' % (im.group(1) if im else len(parts)),
-                          'subs': subs, 'fill': fill, 'i': int(im.group(1)) if im else 0})
+            p = {'nm': 'part %s' % (im.group(1) if im else len(parts)),
+                 'subs': subs, 'fill': fill, 'i': int(im.group(1)) if im else 0}
+            for name in gat.get('class', '').split():
+                if name in fill_anims:
+                    p['fill_track'] = fill_anims[name]
+            parts.append(p)
     # bare elements: blank out consumed lottie-part <g> blocks first so their
     # children aren't double-counted
     residue = re.sub(r'<g\b[^>]*%s[^>]*>.*?</g>' % cls, '', svg_text, flags=re.S)
@@ -405,14 +448,18 @@ def extract_parts(svg_text, css='', cls='lottie-part'):
         if not d:
             continue
         im = re.search(r'--i:\s*(\d+)', at.get('style', ''))
-        parts.append({'nm': 'part %s' % (im.group(1) if im else len(parts)),
-                      'subs': beziers(d), 'fill': at.get('fill', 'black'),
-                      'i': int(im.group(1)) if im else 0})
+        p = {'nm': 'part %s' % (im.group(1) if im else len(parts)),
+             'subs': beziers(d), 'fill': at.get('fill', 'black'),
+             'i': int(im.group(1)) if im else 0}
+        for name in full_cls.split():
+            if name in fill_anims:
+                p['fill_track'] = fill_anims[name]
+        parts.append(p)
     parts.sort(key=lambda p: p['i'])
-    return parts, kf_stops, anim
+    return parts, kf_stops, anim, fill_anims
 
 def convert(svg_text, css='', name='animation', fps=60, pad=4, cls='lottie-part'):
-    parts, kf_stops, anim = extract_parts(svg_text, css, cls)
+    parts, kf_stops, anim, _fill_anims = extract_parts(svg_text, css, cls)
     if not parts:
         raise SystemExit('no .%s elements found — tag the animated pieces' % cls)
     if not kf_stops:
