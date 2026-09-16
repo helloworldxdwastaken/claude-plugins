@@ -18,12 +18,16 @@ wrap raster frames, never true vectors).
 1. **Tag the source.** Each animated piece gets `class="lottie-part"` and
    `style="--i: N"` (stagger order, N from 0). One part = one fill (split
    differently-colored pieces into separate parts; a `<g class="lottie-part">`
-   with a transform/fill is one part). A CSS block defines ONE `@keyframes`
-   rule (opacity / `scale()` / `translate()` only) and the part rule:
+   with a transform/fill is one part). A CSS block defines the part rule:
    `animation: <name> <dur>s <easing> infinite; animation-delay: calc(var(--i, 0) * 100ms);`
-   `<text>` is NOT a Lottie shape — convert it with `text_to_paths()`
-   (fontTools; macOS SFNS.ttf, variable wght) and splice the returned subpaths
-   in as parts.
+   with ONE `@keyframes` rule (opacity / `scale()` / `translate()`). A second,
+   **fill** animation (animated `fill:` color — a color circuit like the
+   artifact's fg-invert white→black→white) applies to parts whose class list
+   contains the animation's NAME: `class="lottie-part fg-invert"` — it runs
+   with a fixed delay (no stagger), its own easing, and the same duration as
+   the primary. `<text>` is NOT a Lottie shape — convert it with
+   `text_to_paths()` (fontTools; macOS SFNS.ttf, variable wght) and splice the
+   returned subpaths in as parts.
 2. **Convert:** `python3 scripts/svg2lottie.py source.svg --out anim.json`
    (reads embedded `<style>`, or pass `--css`; `--fps`, `--pad`, `--name`).
    The comp auto-crops to the parts' union **ink** bbox (the drawn curve,

@@ -128,19 +128,22 @@ def dedupe(pairs):
             out.append((t, v))
     return out
 
-def check_timing(comp, kf_stops, anim, fps, raw_css=''):
+def check_timing(comp, kf_stops, anim, fps, raw_css='', parts=None):
     N = int(anim['duration'] * fps)
     assert comp['op'] == N and comp['fr'] == fps, 'comp duration/fps mismatch'
     # NON-CIRCULAR GUARD: the parsed stops must cover every percentage literal
     # in the raw @keyframes text. (A selector-parse drop like "10%, 92%" only
     # keeping 92 is invisible to a timing check that reuses the same parser.)
     raw_pcts = sorted({float(t) for t in re.findall(r'(\d+(?:\.\d+)?)%', raw_css)})
-    parsed_pcts = sorted({pct for pct, _ in kf_stops})
+    parsed_pcts = sorted({pct for pct, _ in kf_stops} |
+                         {pct for q in (parts or [])
+                          for pct, _ in q.get('fill_track', {'stops': []})['stops']})
     assert raw_pcts == parsed_pcts, ('keyframe stops parsed=%s != raw css %s'
                                      % (parsed_pcts, raw_pcts))
     for L in comp['layers']:
         im = re.search(r'(\d+)$', L['nm'])
         idx = int(im.group(1)) if im else 0
+        p = next((q for q in (parts or []) if q['i'] == idx), None)
         d0 = idx * anim['stagger'] * fps
         def stop_t(pct):
             t = round(pct / 100 * N + d0, 2)
@@ -164,6 +167,23 @@ def check_timing(comp, kf_stops, anim, fps, raw_css=''):
                 for k in prop['k'][:-1]:
                     e = S.EASINGS.get(anim['easing'], S.EASINGS['ease-out'])
                     assert k['o'] == e[0] and k['i'] == e[1], (L['nm'], seq, 'easing')
+        ft = p.get('fill_track') if p else None
+        if ft:
+            d0f = ft.get('delay', 0.0) * fps
+
+            def ftail(pct):
+                t = round(pct / 100 * N + d0f, 2)
+                return round(pct / 100 * N, 2) if t > N else t
+
+            f_exp = dedupe([(ftail(pct), S.hexrgb(st['fill']) + [1])
+                            for pct, st in ft['stops'] if 'fill' in st])
+            fl = next(it for it in L['shapes'][0]['it'] if it['ty'] == 'fl')
+            assert fl['c'].get('a'), (L['nm'], 'fill should be animated')
+            got = [(k['t'], k['s']) for k in fl['c']['k']]
+            assert got == f_exp, (L['nm'], 'fill', got, f_exp)
+            e = S.EASINGS.get(ft['easing'], S.EASINGS['ease-out'])
+            for k in fl['c']['k'][:-1]:
+                assert k['o'] == e[0] and k['i'] == e[1], (L['nm'], 'fill easing')
     return 'timing OK (%ss loop, %sms stagger, %d stops, %s)' % (
         anim['duration'], anim['stagger'] * 1000, len(kf_stops), anim['easing'])
 
@@ -199,11 +219,12 @@ def main():
     css = open(a.css, encoding='utf-8').read() if a.css else ''
     comp = json.load(open(a.json))
 
-    parts, kf_stops, anim = S.extract_parts(src_text, css)
+    parts, kf_stops, anim, fill_anims = S.extract_parts(src_text, css)
     if kf_stops and '<style' not in src_text and not css:
         raise SystemExit('source has no keyframes — pass --css')
     print('STAGE 1:', check_timing(comp, kf_stops, anim, a.fps,
-                                   raw_css=open(a.css, encoding='utf-8').read() if a.css else src_text))
+                                   raw_css=open(a.css, encoding='utf-8').read() if a.css else src_text,
+                                   parts=parts))
     print('STAGE 2:', check_geometry(comp, parts))
     print('PASS: lottie matches source (timing + geometry)')
 
@@ -246,6 +267,11 @@ def main():
                 for k in o['k']:
                     if k['s'][0] < 100 and k['t'] > last_hidden:
                         last_hidden = k['t']
+            for it in L['shapes'][0]['it']:   # fill track: pause after the last
+                if it['ty'] == 'fl' and it['c'].get('a'):   # color kf so the
+                    for k in it['c']['k']:    # stripped-style source (attr fill)
+                        if last_hidden < k['t'] < comp['op']:
+                            last_hidden = k['t']   # matches the paused lottie
         frame = max(1, min(int(last_hidden + (comp['op'] - last_hidden) / 2), comp['op'] - 1))
         page = (DIFF_TPL.replace('__LOTTIE_JS__', ljs)
                 .replace('__TITLE__', os.path.basename(a.json))
