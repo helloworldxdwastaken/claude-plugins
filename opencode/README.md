@@ -1,12 +1,16 @@
-# opencode — project-memory
+# opencode — plugins ported from Claude Code
 
-The `project-memory` plugin for [opencode](https://opencode.ai), ported from the Claude Code plugin in the parent directory. Keep durable project knowledge **in the repo** (`PROJECT_MEMORY.md`), auto-loaded into every opencode session, captured with one command — so you never re-explain a project's history. Works in **any** repo, on **any** machine. Install once.
+Ports of the Claude Code plugins in the parent directory for [opencode](https://opencode.ai).
+
+- **`memo`** (from `project-memory`) — keep durable project knowledge **in the repo** (`PROJECT_MEMORY.md`), auto-loaded into every opencode session, captured with one command — so you never re-explain a project's history. Works in **any** repo, on **any** machine. Install once.
+- **`code-to-lottie`** — convert tagged SVG + CSS-keyframe animations into true-vector Lottie JSON (bodymovin) with three-stage verification (keyframe timing, geometry round-trip, ≥99% browser pixel-diff). Port of the Claude Code plugin of the same name; identical pipeline, same scripts.
 
 Claude Code users: see the parent directory's plugin (`.claude-plugin/` + `plugins/project-memory/`) and install via `/plugin marketplace add helloworldxdwastaken/claude-plugins`.
 
 ## What it does
 
 - **`memo` skill** — append a durable fact (architecture, build/run/deploy steps, gotchas, decisions, conventions) to this repo's `PROJECT_MEMORY.md`, creating the file from a template if it doesn't exist. De-duplicates, uses absolute dates, never writes to personal/global memory, never stores secrets.
+- **`code-to-lottie` skill** — SVG + CSS keyframes → Lottie JSON, with verification baked in. Scripts ship with the skill (`scripts/svg2lottie.py`, `scripts/verify_lottie.py`); the SKILL.md is the full pipeline contract.
 - **Global `AGENTS.md` directive** — at the start of each session, the agent is told that if the repo has a `PROJECT_MEMORY.md` it must read it and treat it as authoritative, and to capture durable facts as it goes. No `PROJECT_MEMORY.md`? You get a one-line nudge to create one (silence with `PROJECT_MEMORY_NUDGE=0`).
 - **Compaction re-injection plugin** *(optional)* — re-injects the capture directive after session compaction, so facts keep getting recorded even late in a long session. (The Claude Code original also fires on `/clear`; opencode has no `clear` event, so this covers compaction only.)
 
@@ -16,6 +20,10 @@ Claude Code users: see the parent directory's plugin (`.claude-plugin/` + `plugi
 # 1. Skill — the `memo` capture command
 mkdir -p ~/.config/opencode/skills/memo
 cp skills/memo/SKILL.md ~/.config/opencode/skills/memo/SKILL.md
+
+# 1b. Skill — `code-to-lottie` (SKILL.md + python scripts)
+mkdir -p ~/.config/opencode/skills/code-to-lottie
+cp -R skills/code-to-lottie/. ~/.config/opencode/skills/code-to-lottie/
 
 # 2. Global directive — auto-loads every session, any repo
 #    (if ~/.config/opencode/AGENTS.md already exists, merge the contents manually)
