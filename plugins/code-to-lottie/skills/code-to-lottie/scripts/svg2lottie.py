@@ -18,7 +18,8 @@ Source contract (the tagging the SKILL.md describes):
 Known-correct invariants (each was a real render-breaking bug once):
   - tangents (i/o) are RELATIVE: never translate them when repositioning;
   - shape vertices are stored RELATIVE to the layer anchor; layer position =
-    the part's bbox center, so scale() pops around the part's own center;
+    the part's ink-bbox center (drawn curve, not control-point hull), so
+    scale() pops around the part's own visual center;
   - delayed parts clamp hold/fade into the global loop window so the seam
     doesn't pop (CSS staggers the fade too; imperceptible, keeps loops clean).
 """
@@ -257,6 +258,31 @@ def shift(subs, dx, dy):
         for p in s['v']:          # vertices only — i/o tangents are relative
             p[0] = round(p[0] + dx, 2); p[1] = round(p[1] + dy, 2)
 
+def sample_points(subs, n=32):
+    """dense samples along every subpath (true-ink approximation)"""
+    pts = []
+    for s in subs:
+        v, i_, o = s['v'], s['i'], s['o']
+        segs = list(range(len(v) - 1)) + ([len(v) - 1] if s['c'] else [])
+        for k in segs:
+            p0, p3 = v[k][:2], v[(k + 1) % len(v)][:2]
+            c1 = [v[k][j] + o[k][j] for j in (0, 1)]
+            c2 = [p3[j] + i_[(k + 1) % len(v)][j] for j in (0, 1)]
+            for t in [j / n for j in range(n)]:
+                mt = 1 - t
+                pts.append(tuple(mt**3 * p0[j] + 3 * mt**2 * t * c1[j]
+                                 + 3 * mt * t**2 * c2[j] + t**3 * p3[j] for j in (0, 1)))
+    return pts
+
+def ink_bbox(subs, n=32):
+    """bounds of the DRAWN curve, not the control-point hull: control points
+    can overshoot the ink by px-scale margins (glyph curves, side bearings),
+    which makes a hull-cropped frame look off-center. Sampled extremes
+    undershoot true ones by << 0.1px — the crop pad is the safety margin."""
+    pts = sample_points(subs, n)
+    return (min(p[0] for p in pts), min(p[1] for p in pts),
+            max(p[0] for p in pts), max(p[1] for p in pts))
+
 def kfs_list(vals, ease):
     o, i = EASINGS.get(ease, EASINGS['ease-out'])
     ks = []
@@ -268,14 +294,19 @@ def kfs_list(vals, ease):
     return {'a': 1, 'k': ks}
 
 def build_comp(name, parts, kf_stops, duration, easing, stagger, fps=60, pad=4):
-    """parts: [{'nm','subs','fill','i'}]; kf_stops: [(pct, {opacity?,scale?,translate?})]"""
+    """parts: [{'nm','subs','fill','i'}]; kf_stops: [(pct, {opacity?,scale?,translate?})]
+    Comp frame: ink-centered around the parts' union ink bbox (+pad each side,
+    ceil slack split evenly) — the logo sits dead-center in the exported frame.
+    The source-space frame origin is stored in comp['crop'] (players ignore it;
+    verifiers/previews use it to align the source svg to the comp)."""
     N = int(duration * fps)
     for p in parts:
-        p.setdefault('bb', bbox(p['subs']))
+        p.setdefault('bb', ink_bbox(p['subs']))
     gx0 = min(p['bb'][0] for p in parts); gy0 = min(p['bb'][1] for p in parts)
     gx1 = max(p['bb'][2] for p in parts); gy1 = max(p['bb'][3] for p in parts)
-    dx, dy = pad - gx0, pad - gy0
     w, h = math.ceil(gx1 - gx0) + 2 * pad, math.ceil(gy1 - gy0) + 2 * pad
+    ox, oy = (gx0 + gx1) / 2 - w / 2, (gy0 + gy1) / 2 - h / 2   # frame origin
+    dx, dy = -ox, -oy                                            # svg -> comp space
     has_scale = any('scale' in st for _, st in kf_stops)
     has_tr = any('translate' in st for _, st in kf_stops)
     layers = []
@@ -321,7 +352,8 @@ def build_comp(name, parts, kf_stops, duration, easing, stagger, fps=60, pad=4):
         layers.append({'ddd': 0, 'ind': n, 'ty': 4, 'nm': p['nm'], 'sr': 1, 'ks': ks,
                        'ao': 0, 'shapes': [grp], 'ip': 0, 'op': N, 'st': 0, 'bm': 0})
     return {'v': '5.7.4', 'fr': fps, 'ip': 0, 'op': N, 'w': w, 'h': h,
-            'nm': name, 'ddd': 0, 'assets': [], 'layers': layers, 'markers': []}
+            'nm': name, 'ddd': 0, 'assets': [], 'layers': layers, 'markers': [],
+            'crop': [round(ox, 2), round(oy, 2)]}
 
 # ---------- source extraction ----------
 def extract_parts(svg_text, css='', cls='lottie-part'):

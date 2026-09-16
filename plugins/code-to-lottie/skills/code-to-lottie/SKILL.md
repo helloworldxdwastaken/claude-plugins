@@ -26,8 +26,12 @@ wrap raster frames, never true vectors).
    in as parts.
 2. **Convert:** `python3 scripts/svg2lottie.py source.svg --out anim.json`
    (reads embedded `<style>`, or pass `--css`; `--fps`, `--pad`, `--name`).
-   The comp auto-crops to the parts' union bbox + `--pad` (default 4px), so a
-   smaller canvas than the source svg is expected, not clipping.
+   The comp auto-crops to the parts' union **ink** bbox (the drawn curve,
+   sampled — not the control-point hull, which overshoots and leaves the
+   logo off-center in the frame), centered, `--pad` each side with the ceil
+   slack split evenly; default pad 4px, pass `--pad 2` for a tight crop. The
+   source-space frame origin is stored in `comp['crop']` — use it to align
+   the source svg to the comp in diffs/previews instead of re-deriving.
 3. **Verify — REQUIRED, all three stages:**
    - `python3 scripts/verify_lottie.py source anim.json` → **stage 1 timing**
      (keyframe times/values/easing vs the source CSS) + **stage 2 geometry**
