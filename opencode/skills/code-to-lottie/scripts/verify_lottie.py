@@ -113,6 +113,10 @@ def sample_sub(s, n=16):
                              for j in (0, 1)))
     return pts
 
+def ink_center(subs):
+    b = S.ink_bbox(subs)
+    return (b[0] + b[2]) / 2, (b[1] + b[3]) / 2
+
 def dedupe(pairs):
     """same clamp-dedupe the builder applies: a stop clamped onto an earlier
     frame replaces it (keep latest value)"""
@@ -167,8 +171,7 @@ def check_geometry(comp, parts):
     worst = 0.0
     assert len(comp['layers']) == len(parts), 'layer count != part count'
     for L, p in zip(comp['layers'], parts):
-        c = S.bbox(p['subs'])                     # svg-space bbox (parts unshifted)
-        cx, cy = (c[0] + c[2]) / 2, (c[1] + c[3]) / 2
+        cx, cy = ink_center(p['subs'])            # svg-space ink center (parts unshifted)
         shs = [it for it in L['shapes'][0]['it'] if it['ty'] == 'sh']
         assert len(shs) == len(p['subs']), (L['nm'], 'subpath count')
         for sh, os_ in zip(shs, p['subs']):
@@ -205,9 +208,13 @@ def main():
     print('PASS: lottie matches source (timing + geometry)')
 
     if a.diff:
-        # source svg cropped to the comp frame (same pad the builder used) for the pixel diff
-        x0 = min(S.bbox(p['subs'])[0] for p in parts) - 4
-        y0 = min(S.bbox(p['subs'])[1] for p in parts) - 4
+        # source svg cropped to the comp frame for the pixel diff — the frame
+        # origin the builder used is stored in comp['crop'] (ink-centered)
+        if comp.get('crop'):
+            x0, y0 = comp['crop']
+        else:   # pre-1.0.7 jsons: hull bbox - pad 4
+            x0 = min(S.bbox(p['subs'])[0] for p in parts) - 4
+            y0 = min(S.bbox(p['subs'])[1] for p in parts) - 4
         w, h = comp['w'], comp['h']
         m = re.search(r'<svg\b[^>]*>', src_text)
         stag = m.group(0)

@@ -3,7 +3,7 @@ name: code-to-lottie
 description: Use when converting a coded animation to a Lottie .json (bodymovin) — "export this as lottie", "svg to lottie", "css animation to lottie", HTML/CSS keyframe loaders or logo animations for lottie-web/lottie-ios/lottie-android/Telegram — and when a generated Lottie renders broken, displaced, or must be re-verified against its source.
 ---
 
-# code-to-lottie (opencode port)
+# code-to-lottie
 
 Convert tagged SVG + CSS-keyframe animations into Lottie JSON, then **prove**
 the export matches. Core principle: conversion is easy to get silently wrong —
@@ -26,8 +26,12 @@ wrap raster frames, never true vectors).
    in as parts.
 2. **Convert:** `python3 scripts/svg2lottie.py source.svg --out anim.json`
    (reads embedded `<style>`, or pass `--css`; `--fps`, `--pad`, `--name`).
-   The comp auto-crops to the parts' union bbox + `--pad` (default 4px), so a
-   smaller canvas than the source svg is expected, not clipping.
+   The comp auto-crops to the parts' union **ink** bbox (the drawn curve,
+   sampled — not the control-point hull, which overshoots and leaves the
+   logo off-center in the frame), centered, `--pad` each side with the ceil
+   slack split evenly; default pad 4px, pass `--pad 2` for a tight crop. The
+   source-space frame origin is stored in `comp['crop']` — use it to align
+   the source svg to the comp in diffs/previews instead of re-deriving.
 3. **Verify — REQUIRED, all three stages:**
    - `python3 scripts/verify_lottie.py source anim.json` → **stage 1 timing**
      (keyframe times/values/easing vs the source CSS) + **stage 2 geometry**
@@ -40,12 +44,6 @@ wrap raster frames, never true vectors).
      antialiasing eats the rest. If < 99%, fix the generator, never the JSON.
 4. **Deliver** a self-contained viewer page (player JS + JSON inlined) so
    anyone can open it.
-
-## Scripts location
-
-The scripts ship with this skill: `~/.config/opencode/skills/code-to-lottie/scripts/`.
-Run them from there (or copy into the project) — `scripts/` paths in the
-pipeline above are relative to the skill directory.
 
 ## Gotchas — each was a real render-breaking bug once
 
