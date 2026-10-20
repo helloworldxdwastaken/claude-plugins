@@ -1,8 +1,10 @@
 # tokyo — Claude Code plugins
 
-A small Claude Code [plugin marketplace](https://code.claude.com/docs/en/plugins.md).
+A small Claude Code [plugin marketplace](https://code.claude.com/docs/en/plugins.md), with project-memory ports for OpenCode and Codex.
 
 > **Using [opencode](https://opencode.ai)?** See [`opencode/`](opencode/) for a port of `project-memory` (global `memo` skill + `AGENTS.md` directive + optional compaction re-injection plugin).
+
+> **Using Codex?** See [`codex/`](codex/) for the `memo` skill and `AGENTS.md` loading instructions.
 
 ## `project-memory`
 
@@ -12,9 +14,9 @@ on **any** machine. Install once.
 
 ### What it does
 
-- **`/project-memory:memo "<fact>"`** — appends a durable fact (architecture, build/run/deploy steps, gotchas,
+- **`/project-memory:memo "<fact>"`** — saves or corrects a durable fact (architecture, build/run/deploy steps, gotchas,
   decisions, conventions) to this repo's `PROJECT_MEMORY.md`, creating the file from a template if it doesn't
-  exist. De-duplicates, uses absolute dates, never writes to personal/global memory, never stores secrets.
+  exist. Updates superseded entries, removes confirmed obsolete facts, de-duplicates by meaning, and skips temporary progress and speculation. Uses absolute dates when relevant; never writes project facts to personal/global memory or stores secrets.
 - **SessionStart hook** — at the start of each session, if the repo has a `PROJECT_MEMORY.md`, its contents
   (plus a directive to capture durable facts as you go) are injected into context automatically. It also
   **re-injects after a compaction or `/clear`**, so when a long session is auto-compacted the memory and the
@@ -41,7 +43,9 @@ To get updates automatically: in the `/plugin` UI → **Marketplaces** → `toky
 ### Notes
 
 - `PROJECT_MEMORY.md` is committed to your repo — **never put secrets/keys in it**.
-- The hook inlines `PROJECT_MEMORY.md` only when it's ≤ 8 KB; larger files are pointed to and read on demand.
+- Existing `PROJECT_MEMORY.md` files and custom headings keep working without migration. Current user instructions and verified repository evidence take precedence over stale memory; recorded notes do not grant permission for external actions.
+- The hook resolves the Git worktree root, including when started from a subfolder. Without Git, it uses `$CLAUDE_PROJECT_DIR` or the current directory.
+- The hook inlines `PROJECT_MEMORY.md` only when it's ≤ 8 KB; larger files are pointed to for reading before project work. Keep an overview and, when useful, move long details to linked Markdown files under `project-memory/` without losing content.
 - The hook fires on `startup`, `compact`, and `clear` — re-injecting after a compaction/`/clear` (which remove
   the earlier injection from context) but **not** on `resume` (where context is retained), so it restores lost
   memory without redundant mid-session repetition.

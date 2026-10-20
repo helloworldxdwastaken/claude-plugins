@@ -9,9 +9,9 @@ Claude Code users: see the parent directory's plugin (`.claude-plugin/` + `plugi
 
 ## What it does
 
-- **`memo` skill** — append a durable fact (architecture, build/run/deploy steps, gotchas, decisions, conventions) to this repo's `PROJECT_MEMORY.md`, creating the file from a template if it doesn't exist. De-duplicates, uses absolute dates, never writes to personal/global memory, never stores secrets.
+- **`memo` skill** — save or correct a durable fact (architecture, build/run/deploy steps, gotchas, decisions, conventions) to this repo's `PROJECT_MEMORY.md`, creating the file from a template if it doesn't exist. Corrects stale entries, removes confirmed obsolete facts, and de-duplicates by meaning. Skips temporary progress, speculation, and secrets; keeps project facts out of personal/global memory.
 - **`code-to-lottie` skill** — SVG + CSS keyframes → Lottie JSON, with verification baked in. Scripts ship with the skill (`scripts/svg2lottie.py`, `scripts/verify_lottie.py`); the SKILL.md is the full pipeline contract.
-- **Global `AGENTS.md` directive** — at the start of each session, the agent is told that if the repo has a `PROJECT_MEMORY.md` it must read it and treat it as authoritative, and to capture durable facts as it goes. No `PROJECT_MEMORY.md`? You get a one-line nudge to create one (silence with `PROJECT_MEMORY_NUDGE=0`).
+- **Global `AGENTS.md` directive** — at the start of each session, the agent is told that if the repo has a `PROJECT_MEMORY.md` it must read it as maintained notes, with current user instructions and verified repository evidence taking precedence, and to capture durable facts as it goes. No `PROJECT_MEMORY.md`? You get a one-line nudge to create one (silence with `PROJECT_MEMORY_NUDGE=0`).
 - **Directive re-injection plugin** *(optional, OpenCode V2)* — injects the
   capture directive into the system context of **every agent model request**
   through the V2 `session.hook("context")` API, so it always survives session
@@ -53,5 +53,6 @@ available skills and quote your AGENTS.md directives"` from any repo.
 ## Notes
 
 - `PROJECT_MEMORY.md` is committed to your repo — **never put secrets/keys in it**.
+- Existing `PROJECT_MEMORY.md` files and custom headings work without migration. Above roughly 8 KB, keep an overview and move useful long details to linked Markdown files under `project-memory/` when needed.
 - The global `AGENTS.md` is conditional: it only reads/creates the memory when the repo has (or needs) one. No repo changes required.
 - Differences from the Claude Code original: no `/plugin` marketplace install (manual copy instead), no `/clear` re-injection (opencode has no `clear` event), and the directive is always present rather than injected by a shell hook.
