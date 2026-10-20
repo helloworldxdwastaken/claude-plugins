@@ -12,7 +12,11 @@ Claude Code users: see the parent directory's plugin (`.claude-plugin/` + `plugi
 - **`memo` skill** — append a durable fact (architecture, build/run/deploy steps, gotchas, decisions, conventions) to this repo's `PROJECT_MEMORY.md`, creating the file from a template if it doesn't exist. De-duplicates, uses absolute dates, never writes to personal/global memory, never stores secrets.
 - **`code-to-lottie` skill** — SVG + CSS keyframes → Lottie JSON, with verification baked in. Scripts ship with the skill (`scripts/svg2lottie.py`, `scripts/verify_lottie.py`); the SKILL.md is the full pipeline contract.
 - **Global `AGENTS.md` directive** — at the start of each session, the agent is told that if the repo has a `PROJECT_MEMORY.md` it must read it and treat it as authoritative, and to capture durable facts as it goes. No `PROJECT_MEMORY.md`? You get a one-line nudge to create one (silence with `PROJECT_MEMORY_NUDGE=0`).
-- **Compaction re-injection plugin** *(optional)* — re-injects the capture directive after session compaction, so facts keep getting recorded even late in a long session. (The Claude Code original also fires on `/clear`; opencode has no `clear` event, so this covers compaction only.)
+- **Directive re-injection plugin** *(optional, OpenCode V2)* — injects the
+  capture directive into the system context of **every agent model request**
+  through the V2 `session.hook("context")` API, so it always survives session
+  compaction (stronger than re-adding it once after a compact). Requires
+  OpenCode V2's plugin API; V1 named-export plugins do not load in V2.
 
 ## Install (per machine)
 
@@ -29,12 +33,17 @@ cp -R skills/code-to-lottie/. ~/.config/opencode/skills/code-to-lottie/
 #    (if ~/.config/opencode/AGENTS.md already exists, merge the contents manually)
 cp AGENTS.md ~/.config/opencode/AGENTS.md
 
-# 3. Optional — compaction re-injection
+# 3. Optional — directive re-injection (OpenCode V2 plugin API)
+npm install --prefix ~/.config/opencode @opencode/plugin
 mkdir -p ~/.config/opencode/plugins
 cp plugin/project-memory.ts ~/.config/opencode/plugins/project-memory.ts
 ```
 
-Restart opencode (config loads at session start). Verify with `opencode run "list your available skills and quote your AGENTS.md directives"` from any repo.
+Restart opencode (config loads at session start). Verify: run
+`grep "project-memory" ~/.local/share/opencode/log/opencode.log` — you should
+see `msg="loading plugin" id=…/plugins/project-memory.ts` and **no**
+`failed to load plugin` warnings. Verify with `opencode run "list your
+available skills and quote your AGENTS.md directives"` from any repo.
 
 ## Use
 
