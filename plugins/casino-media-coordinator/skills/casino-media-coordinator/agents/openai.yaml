@@ -1,0 +1,4 @@
+interface:
+  display_name: "Casino Media Coordinator"
+  short_description: "Assign media workers, manage handoffs and rechecks"
+  default_prompt: "Use $casino-media-coordinator to read the current project plan and memory, assign the appropriate media skills to workers, and coordinate verification through a reviewable handoff."

@@ -10,14 +10,72 @@
       "source": "./plugins/project-memory",
       "description": "Per-repo project memory: auto-injects PROJECT_MEMORY.md into context each session and captures durable facts with /project-memory:memo, so you never re-explain a project.",
       "version": "1.3.0",
-      "author": { "name": "helloworldxdwastaken" }
+      "author": {
+        "name": "helloworldxdwastaken"
+      }
+    },
+    {
+      "name": "genjutsu-video",
+      "source": "./plugins/genjutsu-video",
+      "description": "Recreate reference-video performance with supplied characters, clothing and environments, then inspect fine details and timing.",
+      "version": "1.1.2",
+      "author": {
+        "name": "helloworldxdwastaken"
+      }
+    },
+    {
+      "name": "casino-voice-cloner",
+      "source": "./plugins/casino-voice-cloner",
+      "description": "Isolate and level original speech, convert it to an authorized target voice and preserve the video timeline.",
+      "version": "1.1.1",
+      "author": {
+        "name": "helloworldxdwastaken"
+      }
+    },
+    {
+      "name": "casino-continuity-inspector",
+      "source": "./plugins/casino-continuity-inspector",
+      "description": "Independently check finished faces, clothes, environments, source words and audiovisual timing with timestamped repair findings.",
+      "version": "1.1.2",
+      "author": {
+        "name": "helloworldxdwastaken"
+      }
     },
     {
       "name": "code-to-lottie",
       "source": "./plugins/code-to-lottie",
       "description": "Convert tagged SVG + CSS-keyframe animations to true-vector Lottie JSON (bodymovin) with three-stage verification: keyframe-timing diff, geometry round-trip, and a >=99% browser pixel-diff against the source.",
       "version": "1.0.8",
-      "author": { "name": "helloworldxdwastaken" }
+      "author": {
+        "name": "helloworldxdwastaken"
+      }
+    },
+    {
+      "name": "source-timeline-mapper",
+      "description": "Prepare exact source-to-output video/audio maps, genuine handles and verified clip boundaries with a second artifact-based check.",
+      "version": "1.0.1",
+      "author": {
+        "name": "helloworldxdwastaken"
+      },
+      "source": "./plugins/source-timeline-mapper"
+    },
+    {
+      "name": "casino-media-integrator",
+      "description": "Stage approved video and audio for the casino, verify authoritative results and voice scheduling, then independently recheck the final candidate.",
+      "version": "1.0.1",
+      "author": {
+        "name": "helloworldxdwastaken"
+      },
+      "source": "./plugins/casino-media-integrator"
+    },
+    {
+      "name": "casino-media-coordinator",
+      "description": "Coordinate reference-video, voice, timeline, review and casino integration workers using current project evidence and independent rechecks.",
+      "version": "1.0.1",
+      "author": {
+        "name": "helloworldxdwastaken"
+      },
+      "source": "./plugins/casino-media-coordinator"
     }
   ]
 }

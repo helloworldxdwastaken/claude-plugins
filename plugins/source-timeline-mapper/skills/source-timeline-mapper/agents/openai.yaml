@@ -1,0 +1,4 @@
+interface:
+  display_name: "Source Timeline Mapper"
+  short_description: "Map exact video frames and audio samples; recheck"
+  default_prompt: "Use $source-timeline-mapper to prepare and independently recheck the source, shot boundaries, audio offsets and output timeline for this footage."

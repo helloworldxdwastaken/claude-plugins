@@ -1,0 +1,4 @@
+interface:
+  display_name: "Casino Voice Cloner"
+  short_description: "Convert source speech or remake scene dialogue in Fish"
+  default_prompt: "Use $casino-voice-cloner to prepare this video's speech in my target voice, preserving the source performance unless I request a direct Fish remake. Verify wording, levels and video timing; support automatic scene processing or silence trimming when requested."

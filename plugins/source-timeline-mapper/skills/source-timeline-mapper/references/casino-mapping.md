@@ -1,0 +1,15 @@
+# Casino mapping sources — checked 21 October 2026
+
+Locate the current AI casino checkout (at authoring `/Users/enmanuel/Desktop/Desktop/AI casino`). Its README is canonical. Sources: `audio/fish-scenes/README.md`, `scripts/media/fish_scene_pipeline.py`, `scripts/media/fish_scene_watch.py`, `audio/fish-scenes/video-audio-map.csv`, and per-scene `cut-map.json` files.
+
+Existing direct-Fish review pairs keep original/source-clock and silence-trimmed versions. Retained intervals bind picture frames and 48 kHz audio samples. Current trim policy pads edges by 120 ms and reduces long pauses of at least 750 ms to approximately 240 ms. Treat these as current recipe settings, not universally appropriate edits. The pipeline found FFmpeg 9 delay loss after tempo processing in 6 scenes; the corrected recipe rebuilds sample timestamps after delay and checks exact duration/leading silence. Recheck actual final pairs instead of assuming a successful command preserved offsets.
+
+The original 600 s archive uses source offset 156800/48000 = 3.266666667 s. Selected finished Katie video stops at 468.916667 s, so later reference-picture pairs are labeled reference-only; their existence does not extend finished footage. Two source lines 003/007 retain unresolved clauses ; 19 quiet/nonlexical regions must not acquire invented text. These counts describe the checked snapshot and may change: read current manifests.
+
+Completion descriptors need unique scene IDs, actual video hashes, verified timing and checked words. Arbitrary filenames and renderer source templates are insufficient dialogue evidence. A `ready` flag alone cannot establish semantic verification. Wheel-only exports intentionally map to silence.
+
+Inventory refresh and pairing commands can write review metadata/media. `fish_scene_watch.py --watch --run` can synthesize new paid speech. Do not start watchers or run the pipeline merely to inspect maps. Inspect current flags/call paths and use an isolated export for verification. Preserve the active watcher's ownership/locks and model/voice provenance.
+
+Useful inspected entrypoints: `scripts/media/inspect-clip.py` inventories codecs/hash and sparse sample pictures (not full continuity); `fish_scene_pipeline.py PLAN --pair --trim` rebuilds existing-audio reviews, while `--synthesize` is separate provider work. Existing `cut-map.json` has half-open picture-frame and input 48 kHz sample intervals, contiguous output frames and optional programme seconds. Its FPS is a float and output audio sample ranges are not explicit: derive exact rational values/output sample ranges from the actual media rather than claiming those fields are already present.
+
+The direct-TTS pairing recipe may speed new Fish speech up to 1.35 to fit a review window; that is specific to resynthesized speech and does not authorize retiming original-performance voice conversion. Overlong takes stay held. The old optional `fit-source-speech.py` mouth/activity proxy does not establish phoneme/word sync and predates the FFmpeg 9 timestamp correction.

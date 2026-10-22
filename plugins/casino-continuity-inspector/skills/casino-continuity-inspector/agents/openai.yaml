@@ -1,0 +1,4 @@
+interface:
+  display_name: "Casino Continuity Inspector"
+  short_description: "Check final faces, clothes, sets, words and timing"
+  default_prompt: "Use $casino-continuity-inspector to independently compare this finished video and voice track with the source and approved references, then produce a timestamped repair list."

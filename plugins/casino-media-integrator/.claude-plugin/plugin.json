@@ -1,0 +1,15 @@
+{
+  "name": "casino-media-integrator",
+  "description": "Stage approved video and audio for the casino, verify authoritative results and voice scheduling, then independently recheck the final candidate.",
+  "version": "1.0.1",
+  "author": {
+    "name": "helloworldxdwastaken"
+  },
+  "license": "MIT",
+  "keywords": [
+    "casino",
+    "media",
+    "integration",
+    "verification"
+  ]
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Casino Media Integrator"
+  short_description: "Stage casino media and recheck runtime admission"
+  default_prompt: "Use $casino-media-integrator to prepare a tested local candidate from approved footage and audio, then independently recheck its timing, results and voice scheduling."

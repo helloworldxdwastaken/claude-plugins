@@ -1,0 +1,15 @@
+{
+  "name": "casino-media-coordinator",
+  "description": "Coordinate reference-video, voice, timeline, review and casino integration workers using current project evidence and independent rechecks.",
+  "version": "1.0.1",
+  "author": {
+    "name": "helloworldxdwastaken"
+  },
+  "license": "MIT",
+  "keywords": [
+    "casino",
+    "coordination",
+    "agents",
+    "media"
+  ]
+}

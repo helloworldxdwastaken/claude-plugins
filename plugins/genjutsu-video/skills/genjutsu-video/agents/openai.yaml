@@ -1,0 +1,4 @@
+interface:
+  display_name: "Genjutsu Video"
+  short_description: "Replace characters and sets; verify fine details"
+  default_prompt: "Use $genjutsu-video to recreate this reference video's performance with my character and environment images, then review visual details and timing."

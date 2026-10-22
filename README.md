@@ -97,6 +97,29 @@ plugins/code-to-lottie/
         └── verify_lottie.py           # timing + geometry + pixel-diff verification
 ```
 
+## Reference video and audio skills
+
+Added locally on 21 October 2026. The original three are now version 1.1.1; the two preparation/integration skills are version 1.0.1 and the coordinator is version 1.0.0.
+
+| Skill | Recipe |
+| --- | --- |
+| [Casino Media Coordinator](plugins/casino-media-coordinator/skills/casino-media-coordinator/SKILL.md) | Read current project plan/memory, route work to the needed skills, assign owners/budgets and reconcile independent checks and handoffs. |
+| [Genjutsu Video](plugins/genjutsu-video/skills/genjutsu-video/SKILL.md) | Recreate source performance using character/clothing/room images; inspect identity, garment features, layout, props and timing. Includes official Genjutsu mode guidance and qualified local casino recipes. |
+| [Casino Voice Cloner](plugins/casino-voice-cloner/skills/casino-voice-cloner/SKILL.md) | Isolate original speech, level it, convert toward the authorized target voice and preserve source timing; compare words, voice and actual AV sync separately. |
+| [Casino Continuity Inspector](plugins/casino-continuity-inspector/skills/casino-continuity-inspector/SKILL.md) | Independent final comparison and timestamped repair list, with explicit coverage and unverified checks. |
+| [Source Timeline Mapper](plugins/source-timeline-mapper/skills/source-timeline-mapper/SKILL.md) | Exact source/shot/sample/trim maps and genuine handles, with a local map arithmetic/hash checker. |
+| [Casino Media Integrator](plugins/casino-media-integrator/skills/casino-media-integrator/SKILL.md) | Isolated candidate assembly and admission checks for authoritative results, one voice, safe joins and actual player delivery. |
+
+Canonical sources live in `plugins/<name>/skills/<name>/`. Codex can discover these through local symlinks in its active profile's `skills` directory; each includes `agents/openai.yaml` metadata. Start a new chat after installation and invoke `$casino-media-coordinator` for a multi-step task, or `$genjutsu-video`, `$casino-voice-cloner`, `$casino-continuity-inspector`, `$source-timeline-mapper` or `$casino-media-integrator` for a focused task. Claude plugin manifests and this local marketplace include all six; no public release is implied by these local files.
+
+All six apply a two-pass recheck protocol: worker verification followed by a separate check of frozen final artifacts against raw evidence. Changed bytes/maps invalidate affected checks. Missing listening/viewing/runtime evidence stays unassessed; repeating the same command does not count as independent verification. At most two repair/recheck cycles are the default, within the existing task budget. Each skill bundles the protocol so it works independently when installed alone.
+
+The coordinator uses available subagent tools and gives workers explicit skill paths, artifacts, ownership and evidence requirements. It respects current concurrency limits, project swarm roles and one shared cumulative budget. It chooses direct TTS or original-performance conversion according to the request; neither is an automatic substitute for the other. Missing delegation/tools are reported honestly, and creating/installing the coordinator does not run a media pipeline.
+
+The mapper's `scripts/verify_timeline.py` validates a portable JSON export using exact rational arithmetic, native interval bounds, explicit speed, complete output coverage and actual file hashes. It does not certify decoded clocks, semantic correspondence or audiovisual sync. Run its regression checks with `python3 -m unittest discover -s tests -p test_timeline_mapper.py -v`; they include synthetic local media and invalidated-final-byte cases.
+
+These are executable-agent recipes, not bundled video/voice models. They use available tools, verify actual inputs/outputs and report missing capabilities. No media, private source recordings, model weights, embeddings or credentials are included. Structural validation and scenario review do not establish successful new video generation, voice conversion or lip sync.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
