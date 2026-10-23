@@ -46,6 +46,8 @@ Place the selected utterance cores on their original sample coordinates. Use gen
 
 Export a lossless voice-only WAV/FLAC master before making compressed previews. Check decoded sample count, placement, complete decoding, peaks, clipping, nonfinite samples where applicable, support leakage, joins and final encoding delay. Recheck these on the actual delivered bytes. Report measured timing resolution; do not declare a universal zero-lag result from one metric.
 
+When a placed or replaced utterance lands in a shared stem: transcribe each changed span of the final mixed file with a local ASR pass and compare word-for-word with the intended text (also spot-check neighbouring, previously accepted lines — garbles can hide in old takes); match loudness to the adjacent lines and to any runtime voice on the same output, measured, not only to a fixed target; and fade every clip edge so no clip steps to or from digital silence.
+
 Pair with the final video using its source mapping, keeping duplicate original/generated speech muted. Review phrase onsets/ends, audible events and visible lip closures throughout, including both sides of cuts, long-run drift and seek/pause/restart in the actual player. A stretched or shifted generated performance may need a separate mouth-animation pass; conversion alone does not repair invented lip movement. Do not claim natural lip sync from matching timestamps or mouth-opening curves.
 
 Music/noise removed from source speech stays out of the voice master. Add separately authorized music only when requested; distinguish the music stem and its gain/ducking from the speech treatment.

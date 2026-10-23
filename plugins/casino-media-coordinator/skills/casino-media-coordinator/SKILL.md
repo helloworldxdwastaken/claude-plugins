@@ -31,7 +31,7 @@ Use the [worker brief and result fields](references/worker-brief.md). Include th
 
 Define nonoverlapping write ownership. Workers write versioned outputs in their own staging areas; only the integration owner reconciles shared manifests, programme registrations and canonical documentation. Coordinate ownership transfers explicitly. Do not allow two game writers, provider request owners or watchers. Existing locks and exact-request caches remain authoritative.
 
-Keep one global ledger of actual spend plus outstanding reservations across workers/retries. Allocate disjoint sub-budgets before concurrent paid work. An ambiguous request stays reserved/unknown until reconciled by receipt/job ID; never free its allocation and resubmit because it timed out. Reuse verified exact-input caches where appropriate. Skill invocation never grants unlimited retries, uploads, infrastructure rental or a provider switch.
+Keep one global ledger of actual spend plus outstanding reservations across workers/retries. Concurrent writers must merge into the ledger rather than overwrite it. Allocate disjoint sub-budgets before concurrent paid work. An ambiguous request stays reserved/unknown until reconciled by receipt/job ID; never free its allocation and resubmit because it timed out. Reuse verified exact-input caches where appropriate. Skill invocation never grants unlimited retries, uploads, infrastructure rental or a provider switch.
 
 ## Integrate evidence, not success summaries
 

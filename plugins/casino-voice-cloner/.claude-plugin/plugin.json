@@ -1,7 +1,7 @@
 {
   "name": "casino-voice-cloner",
   "description": "Isolate original speech, convert it to an authorized target voice and preserve the video timeline with audible comparison.",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "author": {
     "name": "helloworldxdwastaken"
   },

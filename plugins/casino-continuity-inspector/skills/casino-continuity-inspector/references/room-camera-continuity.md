@@ -21,6 +21,10 @@ Evaluate room geometry, camera perspective, subject orientation and framing sepa
 
 For AI casino, compare the replacement against the established room in the beginning of the selected table video. Ornate panels, standing lamps, candelabra and curtains must retain their visible relationships. A newly invented blank corner or sofa arrangement is a mismatch unless the owner explicitly changes the set. Use current footage for actual facts; this example is not a universal room specification.
 
+## Check viewpoint geometry, not only landmarks
+
+Work out where the camera stands relative to the subject and the accepted front view, then predict which side of the room must appear behind the subject and how walls, rails, wainscot and floor should recede. A candidate can show every correct landmark and still be wrong: the layout mirrored (seen from the opposite side), or a back wall shown flat and square-on while the subject and table are seen at an angle. Treat either as a room mismatch. An accepted reference can itself carry this error; an owner rejection demotes it from authority.
+
 ## Handoff and recheck
 
 Mark an unexplained room landmark, axis or layout change **mismatch/hold**. Do not approve a paid expansion, asset admission or an overall match from a face-only check, a provider success status, or another reviewer's summary. Missing sufficient accepted views means room continuity is not assessed; say what evidence is missing. Do not demand pixel-identical backgrounds between genuinely different angles.

@@ -27,6 +27,8 @@ Compose original→programme→trimmed mappings explicitly. A review clip with r
 
 ## First verification: construct and exercise the candidate
 
+Verify selection exhaustively, not by spot checks: scan every frame/time of the candidate and record which asset or renderer actually paints it and which speech window can play, so fall-through gaps (e.g. to a fallback renderer) and unreachable cues show up. Check that origin/host allow-lists for asset playback include the real deployment hosts. For scheduled speech, check each clip against the phase it describes, the code-owned announcements it could duplicate or crowd, and the player's start-lag tolerance.
+
 Run current asset readiness/hash/byte admission and appropriate focused game/media/voice regression checks. Recompute cues and validate coverage, cut/trim boundaries, source prefix preservation and final encoded bytes. Use synthetic replay/fault fixtures to verify game-result/media agreement and failure behavior without modifying live outcomes.
 
 Exercise the actual candidate in its intended local player: natural playback through a complete candidate cycle and wrap; all new/replaced result/cue intervals; sound on/off; cut/cancellation/expiry; buffering or missing media; pause/seek/reconnect where supported. Check private-state exclusion and route separation. For claimed High/Saver delivery, test each actual delivered variant; a source master cannot certify transcoded bytes. Do not claim device/capacity/shared encoded streaming support that the actual system does not exercise.

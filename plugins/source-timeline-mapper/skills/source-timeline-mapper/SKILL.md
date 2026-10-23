@@ -18,6 +18,7 @@ For AI casino work read [current project recipe](references/casino-mapping.md), 
 ## Construct and verify the map
 
 1. Detect candidate shot boundaries, then inspect both adjacent decoded frames. Note transitions, hard cuts, genuine source endings, speech onsets/ends, gestures/contact and usable following footage. Scene detectors and ASR produce candidates, not verified boundaries or words.
+   Extract evidence frames by decoded timestamp or ordinal (select by PTS/frame index) and confirm the index you got; fractional input seeks can return the neighbouring frame.
 2. Represent half-open intervals `[start,end)` in integer native coordinates with a rational time base. Record source and output coordinates, stream identity, intended speed and the evidence establishing each correspondence. Keep original-clock, programme-clock and silence-trimmed-clock maps separate and composable.
 3. Prepare source excerpts with genuine before/after handles when needed. Record the retained core separately from handles. A final source tail cannot be created by looping, freezing or borrowing unrelated footage. If an engine needs more input than exists, report that limit.
 4. Match actual generated output using cuts and recognizable performance landmarks. Measure drift before deriving any alignment correction; do not align away the error you are checking. A requested mapping is provisional until the actual output supports it. Reject missing core footage; do not stretch speech to disguise truncation.

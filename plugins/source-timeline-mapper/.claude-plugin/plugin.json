@@ -1,7 +1,7 @@
 {
   "name": "source-timeline-mapper",
   "description": "Prepare exact source-to-output video/audio maps, genuine handles and verified clip boundaries with a second artifact-based check.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": {
     "name": "helloworldxdwastaken"
   },
