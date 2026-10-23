@@ -18,7 +18,7 @@
       "name": "genjutsu-video",
       "source": "./plugins/genjutsu-video",
       "description": "Recreate reference-video performance with supplied characters, clothing and environments, then inspect fine details and timing.",
-      "version": "1.1.3",
+      "version": "1.1.4",
       "author": {
         "name": "helloworldxdwastaken"
       }
