@@ -1,7 +1,7 @@
 {
   "name": "casino-media-integrator",
   "description": "Stage approved video and audio for the casino, verify authoritative results and voice scheduling, then independently recheck the final candidate.",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "author": {
     "name": "helloworldxdwastaken"
   },

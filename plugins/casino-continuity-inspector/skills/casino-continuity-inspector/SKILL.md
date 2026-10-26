@@ -25,6 +25,16 @@ Use [review procedure and report fields](references/review-procedure.md). Prepar
 
 Watch the whole output at normal speed. Inspect dense frames around cuts, first-frame appearance ramps, face turns, hand/prop contact and joins; use native-resolution crops for small clothing/face/background details. Listen to all retained utterances against original and isolated speech at the same moment. Track coverage honestly and mark unsupported sensory checks as not assessed if actual viewing/listening tools are unavailable.
 
+## Proven checks for scheduled speech and lips
+
+For a programme whose voice plays in scheduled windows over a picture timeline, run these local scripts (faster-whisper, librosa, soundfile, OpenCV). They found real defects that frame sampling and summary reading missed.
+
+1. **Every window as played:** `python3 scripts/speech_windows_pass.py STEM WINDOWS.json OUT`. It renders the stem only inside the windows (what the gate lets through), then reports each line's text from two ASR models, head/tail edge level, peak, active-speech level and overlaps. Read the text against the intended wording. An edge above about −60 dB is an audible cut. A line several dB off its neighbours is a level jump.
+2. **Every face shot, not only voiced ones:** list the frame ranges where the face is on screen, then `python3 scripts/mouth_sheets.py VIDEO OUT RANGES… --voice OUT/voice-as-played.flac`. Look at every sheet. A mouth shaping words without the green **V** is silent mouthing; a **V** over a closed mouth is voice without lips. Most findings live in shots that carry no voice at all.
+3. **Lip timing:** when the picture copies an original performance, `python3 scripts/word_onsets.py DELIVERED ORIGINAL WINDOWS.json` gives each window's median word-onset difference against the original speech. Negative means the voice is ahead of the lips. Treat medians beyond ±150 ms over a visible face as findings; fewer than 3 matched words is no evidence.
+
+ASR input must be 16 kHz: faster-whisper treats a raw array as 16 kHz, so 48 kHz audio returns fluent nonsense. The scripts resample. Pixel-motion or mouth-aperture scores were too noisy (head turns, cuts to wides) to give a sync number; report sync only from word onsets plus looking.
+
 ## Findings that require attention
 
 - **Identity:** wrong/blended/swapped person, face drift in profile/speech, hair/skin/age changes and inconsistent hands/body.

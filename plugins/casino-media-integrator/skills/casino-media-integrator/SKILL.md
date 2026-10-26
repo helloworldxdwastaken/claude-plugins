@@ -35,6 +35,22 @@ Exercise the actual candidate in its intended local player: natural playback thr
 
 Listen and inspect changed speech/pictures; clocks/RMS are technical evidence, not word/voice/lip certification. If browsing/listening or required checks are unavailable, keep a qualified staging result and identify the missing evidence. Apply relevant existing test commands to the actual changed modules; do not fabricate an acceptance report from old suite totals.
 
+### Proven check: what the viewer's page actually paints
+
+Run `node scripts/watch_page.mjs URL [seconds] [--mbps 30]` against the local player and again against every deployed public URL. It starts a **muted** headless Chrome; an unmuted test browser plays the programme through the owner's speakers. It logs each renderer/camera change with its source frame, frames per state, every `loading` run, and each media request with status and seconds. A hidden or backgrounded app browser pane throttles video callbacks, so do not judge smoothness from it.
+
+Read the log as follows:
+- **Blank frames are audio bugs too.** A `loading` frame marks the camera not ready, which mutes table ambience and retires recorded lines. "Buggy audio in some parts" can be a picture gap.
+- **Localhost hides download time.** A per-viewer clip fetched only after its trigger (e.g. a result clip after the result is known) arrives instantly locally and seconds later online. Check its request seconds on the public URL, and with `--mbps 30`, before calling a lane smooth.
+- **Background bandwidth counts.** A large main-video rendition buffering at join time can starve the per-viewer clips. Note which rendition the page actually requested.
+- **Per-viewer results stay per-viewer.** Where each player has their own outcome (e.g. hizi), result pictures cannot be baked into one shared stream. Only presentation-neutral shots can be.
+
+### Shipping a checkout to a server
+
+- Before copying code, diff the server's tree file by file against the candidate when the git histories are unrelated or the server has unpushed commits. Keep server-only product changes.
+- Stage commits by explicit path. Check `git check-ignore` for build output and media first; a server repo may not ignore `dist/` or clip folders.
+- Deploy dev first, then prod. Restart only at a safe game phase (e.g. betting open, no pending or accepted bets). Back up code and state first, and keep the previous build beside the new one.
+
 ## Second verification: recheck final artifacts
 
 Apply [the two-pass recheck protocol](references/recheck-protocol.md). A fresh checker receives raw final candidate bytes/maps, current game contracts and required outcomes/cues; it recomputes hashes and critical mappings, independently inspects boundaries and challenges runtime admission using replay/fault evidence. The first checker's summary is not the source of truth. Reopen the actual local candidate/delivered assets and confirm the final version is what the player uses.

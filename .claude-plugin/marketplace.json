@@ -27,7 +27,7 @@
       "name": "casino-voice-cloner",
       "source": "./plugins/casino-voice-cloner",
       "description": "Isolate and level original speech, convert it to an authorized target voice and preserve the video timeline.",
-      "version": "1.1.2",
+      "version": "1.1.3",
       "author": {
         "name": "helloworldxdwastaken"
       }
@@ -36,7 +36,7 @@
       "name": "casino-continuity-inspector",
       "source": "./plugins/casino-continuity-inspector",
       "description": "Independently check finished faces, clothes, environments, source words and audiovisual timing with timestamped repair findings.",
-      "version": "1.1.3",
+      "version": "1.2.0",
       "author": {
         "name": "helloworldxdwastaken"
       }
@@ -62,7 +62,7 @@
     {
       "name": "casino-media-integrator",
       "description": "Stage approved video and audio for the casino, verify authoritative results and voice scheduling, then independently recheck the final candidate.",
-      "version": "1.0.2",
+      "version": "1.1.0",
       "author": {
         "name": "helloworldxdwastaken"
       },
